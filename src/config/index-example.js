@@ -1,5 +1,5 @@
 export default {
     firebase: {
-        databaseURL: 'https://your-super-cool-database-url.firebaseio.com/'
+        databaseEndpoint: 'https://your-super-cool-database-url.firebaseio.com/'
     }
 }

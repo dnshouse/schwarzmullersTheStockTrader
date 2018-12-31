@@ -1,22 +1,18 @@
 import Vue from 'vue'
-import VueRouter from 'vue-router'
 import App from './App.vue'
-import {routes} from './routes'
+import router from './router'
 import store from './store/store'
-import VueResource from 'vue-resource'
-import config from './config'
-
-Vue.use(VueRouter);
-Vue.use(VueResource);
-Vue.http.options.root = config.firebase.databaseURL;
 
 Vue.filter('currency', (value) => {
     return '$' + value.toLocaleString();
 });
 
-const router = new VueRouter({
-    mode: 'history',
-    routes
+Vue.filter('error', (message) => {
+    if (message !== null) {
+        let lower = message.toLowerCase().split('_').join(' ');
+        return lower.charAt(0).toUpperCase() + lower.substr(1);
+    }
+    return null;
 });
 
 new Vue({

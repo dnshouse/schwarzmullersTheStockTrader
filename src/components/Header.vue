@@ -2,13 +2,13 @@
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
-                <router-link class="navbar-brand" to="/">Stock Trader</router-link>
+                <router-link class="navbar-brand" to="/user">Stock Trader</router-link>
             </div>
 
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <router-link to="/portfolio" activeClass="active" tag="li"><a>Portfolio</a></router-link>
-                    <router-link to="stocks" activeClass="active" tag="li"><a>Stocks</a></router-link>
+                    <router-link to="/user/portfolio" activeClass="active" tag="li"><a>Portfolio</a></router-link>
+                    <router-link to="/user/stocks" activeClass="active" tag="li"><a>Stocks</a></router-link>
                 </ul>
                 <strong class="navbar-text navbar-right">Your Funds: {{ funds | currency }}</strong>
                 <ul class="nav navbar-nav navbar-right">
@@ -21,6 +21,7 @@
                             <li><a href="#" @click="loadData">Load Data</a></li>
                         </ul>
                     </li>
+                    <li><a href="#" @click="logOut">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -29,6 +30,9 @@
 
 <script>
     import {mapActions} from 'vuex'
+    import {mapGetters} from 'vuex';
+
+    import axios from '../axios-database'
 
     export default {
         name: "Header",
@@ -38,6 +42,9 @@
             };
         },
         computed: {
+            ...mapGetters({
+                getUser: 'user',
+            }),
             funds() {
                 return this.$store.getters.funds;
             }
@@ -45,7 +52,8 @@
         methods: {
             ...mapActions({
                 randomizeStocks: 'randomizeStocks',
-                fetchData: 'loadData'
+                fetchData: 'loadData',
+                doLogOut: 'logOut',
             }),
             endDay() {
                 this.randomizeStocks();
@@ -56,10 +64,15 @@
                     stockPortfolio: this.$store.getters.stockPortfolio,
                     stocks: this.$store.getters.stocks
                 };
-                this.$http.put('data.json', data);
+                axios.put(this.getUser.localId + '/data.json' + '?auth=' + this.getUser.idToken, data)
+                    .then(response => console.log(response.data))
+                    .catch(error => console.log(error.response.data));
             },
             loadData() {
                 this.fetchData();
+            },
+            logOut() {
+                this.doLogOut();
             }
         }
     }
