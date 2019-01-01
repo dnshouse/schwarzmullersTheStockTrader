@@ -21,7 +21,7 @@
                             <li><a href="#" @click="loadData">Load Data</a></li>
                         </ul>
                     </li>
-                    <li><a href="#" @click="logOut">Logout</a></li>
+                    <li v-if="this.getUser"><a href="#" @click="logOut">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -30,7 +30,7 @@
 
 <script>
     import {mapActions} from 'vuex'
-    import {mapGetters} from 'vuex';
+    import {mapGetters} from 'vuex'
 
     import axios from '../axios-database'
 

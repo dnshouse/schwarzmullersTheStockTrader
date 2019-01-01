@@ -15,19 +15,40 @@
                     </div>
 
                     <form id="loginform" class="form-horizontal" role="form">
-                        <div style="margin-bottom: 25px" class="input-group">
+                        <div style="margin-bottom: 25px" class="input-group" :class="{invalid:$v.email.$error}">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                            <input id="login-username" type="text" class="form-control" name="username" value=""
-                                   placeholder="email" v-model="email">
+                            <input id="login-username"
+                                   type="text"
+                                   class="form-control"
+                                   name="username"
+                                   value=""
+                                   placeholder="email"
+                                   v-model="email"
+                                   @blur="$v.email.$touch()"
+                            >
                         </div>
-                        <div style="margin-bottom: 25px" class="input-group">
+                        <div class="error" v-if="$v.email.$error && !$v.email.required">Field is required</div>
+                        <div class="error" v-if="$v.email.$error && !$v.email.email">Invalid Email</div>
+                        <div class="error" v-if="$v.email.$error && !$v.email.unique">This Email has been already taken</div>
+
+                        <div style="margin-bottom: 25px" class="input-group" :class="{invalid:$v.password.$error}">
                             <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                            <input id="login-password" type="password" class="form-control" name="password"
-                                   placeholder="password" v-model="password">
+                            <input id="login-password"
+                                   type="password"
+                                   class="form-control"
+                                   name="password"
+                                   placeholder="password"
+                                   v-model="password"
+                                   @blur="$v.password.$touch()"
+                            >
                         </div>
+                        <div class="error" v-if="$v.password.$error && !$v.password.required">Field is required</div>
+                        <div class="error" v-if="$v.password.$error && !$v.password.minLength">
+                            Minimum length is {{ $v.password.$params.minLength.min }}</div>
+
                         <div style="margin-top:10px" class="form-group">
                             <div class="col-sm-12 controls">
-                                <a id="btn-login" class="btn btn-success" @click="authenticate" :disabled="password.length < 6">Login</a>
+                                <a id="btn-login" class="btn btn-success" @click="authenticate" :disabled="$v.$invalid">Login</a>
                             </div>
                         </div>
                     </form>
@@ -41,6 +62,8 @@
     import {mapActions} from 'vuex';
     import {mapGetters} from 'vuex';
 
+    import {required, minLength, email} from 'vuelidate/lib/validators';
+
     export default {
         name: "Auth",
         computed: {
@@ -52,8 +75,29 @@
         data() {
             return {
                 email: '',
-                password: '',
+                password: ''
             };
+        },
+        validations: {
+            email: {
+                required,
+                email,
+                unique: val => {
+                    if(val === ''){
+                        return true;
+                    }
+
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            resolve(val !== 'test@test.com');
+                        }, 1500);
+                    });
+                }
+            },
+            password: {
+                required,
+                minLength: minLength(6)
+            }
         },
         methods: {
             ...mapActions({
@@ -75,5 +119,8 @@
 </script>
 
 <style scoped>
-
+    .invalid{
+        border: 1px solid red;
+        background-color: #FFC9AA;
+    }
 </style>
